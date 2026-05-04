@@ -1,11 +1,12 @@
 <script setup>
 const route = useRoute()
 const shopify = useShopify()
+const country = useShopifyCountry()
 const { buyNow } = useCart()
 
 const { data: product } = await useAsyncData(`product-${route.params.handle}`, async () => {
   const { data, errors } = await shopify.request(`#graphql
-    query Product($handle: String!) {
+    query Product($handle: String!, $country: CountryCode!) @inContext(country: $country) {
       product(handle: $handle) {
         id
         title
@@ -21,12 +22,27 @@ const { data: product } = await useAsyncData(`product-${route.params.handle}`, a
       }
     }
   `, {
-    variables: { handle: route.params.handle },
+    variables: { handle: route.params.handle, country },
   })
   if (errors) throw createError({ statusCode: 500, statusMessage: 'Shopify error' })
   if (!data.product) throw createError({ statusCode: 404, statusMessage: 'Product not found', fatal: true })
   return data.product
 })
+
+const { data: related } = await useAsyncData(                                                                                                                                                                                                                                          
+    `related-${route.params.handle}`,                                                                                                                                                                                                                                                    
+    async () => {
+      const { data, errors } = await shopify.request(`#graphql
+        query Related($productId: ID!) {                                                                                                                                                                                                                                                 
+          productRecommendations(productId: $productId) {
+            handle                                                                                                                                                                                                                                                                       
+          }       
+        }
+      `, { variables: { productId: product.value.id } })
+      if (errors) return []                                                                                                                                                                                                                                                              
+      return (data.productRecommendations || []).slice(0, 3)
+    }                                                                                                                                                                                                                                                                                    
+  )
 
 const variant = computed(() => product.value?.variants?.nodes?.[0])
 const isBuying = ref(false)
@@ -54,7 +70,7 @@ async function onBuyNow() {
       <div class="space-y-6">
         <h1 class="text-4xl font-bold">{{ product.title }}</h1>
         <p class="text-2xl">
-          {{ product.priceRange.minVariantPrice.amount }} {{ product.priceRange.minVariantPrice.currencyCode }}
+          {{ formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode) }}
         </p>
         <button
           type="button"
@@ -71,5 +87,15 @@ async function onBuyNow() {
         <div class="prose" v-html="product.descriptionHtml" />
       </div>
     </article>
+      <section v-if="related?.length" class="mt-16">                                                                                                                                                                                                                                         
+    <h2 class="text-2xl font-bold mb-6">You might also like(fetched from Shopify and uses Shopify logic)</h2>                                                                                                                                                                                                                         
+    <div class="grid gap-6 md:grid-cols-3">
+      <ProductTeaser                                                                                                                                                                                                                                                                     
+        v-for="r in related"                                                                                                                                                                                                                                                             
+        :key="r.handle"
+        :handle="r.handle"                                                                                                                                                                                                                                                               
+      />          
+    </div>
+  </section>
   </main>
 </template>

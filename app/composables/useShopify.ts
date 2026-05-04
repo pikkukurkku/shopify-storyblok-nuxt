@@ -1,10 +1,13 @@
-import { createStorefrontApiClient } from '@shopify/storefront-api-client'
+import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 
 export const useShopify = () => {
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig();
   return createStorefrontApiClient({
     storeDomain: `https://${config.public.shopifyDomain}`,
-    apiVersion: '2026-04',
+    apiVersion: "2026-04",
     publicAccessToken: config.public.shopifyToken as string,
-  })
-}
+  });
+};
+
+export const useShopifyCountry = () =>
+  useRuntimeConfig().public.shopifyCountry as string;

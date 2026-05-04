@@ -1,9 +1,11 @@
 <script setup>
-const shopify = useShopify()
+const shopify = useShopify();
+const country = useShopifyCountry()
 
-const { data: products } = await useAsyncData('products', async () => {
-  const { data, errors } = await shopify.request(`#graphql
-    query Products {
+const { data: products } = await useAsyncData("products", async () => {
+  const { data, errors } = await shopify.request(
+    `#graphql
+    query Products($country: CountryCode!) @inContext(country: $country) {   
       products(first: 12) {
         nodes {
           id
@@ -14,10 +16,15 @@ const { data: products } = await useAsyncData('products', async () => {
         }
       }
     }
-  `)
-  if (errors) throw createError({ statusCode: 500, statusMessage: 'Shopify error' })
-  return data.products.nodes
-})
+  `,
+    {
+      variables: { country },
+    },
+  );
+  if (errors)
+    throw createError({ statusCode: 500, statusMessage: "Shopify error" });
+  return data.products.nodes;
+});
 </script>
 
 <template>
@@ -38,10 +45,9 @@ const { data: products } = await useAsyncData('products', async () => {
         />
         <h3 class="mt-3 font-medium">{{ p.title }}</h3>
         <p class="mt-1 text-gray-600">
-          {{ p.priceRange.minVariantPrice.amount }} {{ p.priceRange.minVariantPrice.currencyCode }}
+          {{ formatMoney(p.priceRange.minVariantPrice.amount, p.priceRange.minVariantPrice.currencyCode) }}
         </p>
       </NuxtLink>
     </div>
-
   </main>
 </template>

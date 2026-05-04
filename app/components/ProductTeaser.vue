@@ -4,10 +4,11 @@ const props = defineProps({
 })
 
 const shopify = useShopify()
+const country = useShopifyCountry()
 
 const { data: product } = await useAsyncData(`teaser-${props.handle}`, async () => {
   const { data, errors } = await shopify.request(`#graphql
-    query TeaserProduct($handle: String!) {
+    query TeaserProduct($handle: String!, $country: CountryCode!) @inContext(country: $country) {
       product(handle: $handle) {
         id
         title
@@ -16,7 +17,7 @@ const { data: product } = await useAsyncData(`teaser-${props.handle}`, async () 
         priceRange { minVariantPrice { amount currencyCode } }
       }
     }
-  `, { variables: { handle: props.handle } })
+  `, { variables: { handle: props.handle, country } })
   if (errors) return null
   return data.product
 })
@@ -37,8 +38,7 @@ const { data: product } = await useAsyncData(`teaser-${props.handle}`, async () 
     <div class="p-4 space-y-1">
       <h3 class="font-medium">{{ product.title }}</h3>
       <p class="text-sm text-gray-600">
-        {{ product.priceRange.minVariantPrice.amount }}
-        {{ product.priceRange.minVariantPrice.currencyCode }}
+        {{ formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode) }}
       </p>
     </div>
   </NuxtLink>
