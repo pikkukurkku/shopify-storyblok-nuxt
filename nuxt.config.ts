@@ -17,6 +17,11 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
+    shopifyCustomerAccountClientId: process.env.SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID,
+    shopifyCustomerAccountApiUrl: process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_URL,
+    shopifyCustomerAccountAuthUrl: process.env.SHOPIFY_CUSTOMER_ACCOUNT_AUTH_URL,
+    shopifyCustomerAccountTokenUrl: process.env.SHOPIFY_CUSTOMER_ACCOUNT_TOKEN_URL,
+    shopifyCustomerAccountLogoutUrl: process.env.SHOPIFY_CUSTOMER_ACCOUNT_LOGOUT_URL,
     public: {
       shopifyDomain: process.env.SHOPIFY_DOMAIN,
       shopifyToken: process.env.SHOPIFY_STOREFRONT_TOKEN,

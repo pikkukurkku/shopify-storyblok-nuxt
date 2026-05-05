@@ -1,9 +1,18 @@
+<script setup>
+const { customer, isLoggedIn } = useCustomer()
+</script>
+
 <template>
     <header class="site-header">
         <NuxtLink to="/" class="logo">My Shop</NuxtLink>
         <nav>
             <NuxtLink to="/">Home</NuxtLink>
             <NuxtLink to="/products">Products</NuxtLink>
+            <template v-if="isLoggedIn">
+                <NuxtLink to="/account">Hi, {{ customer.firstName || 'there' }}</NuxtLink>
+                <a href="/api/auth/logout">Logout</a>
+            </template>
+            <a v-else href="/api/auth/login">Login</a>
         </nav>
     </header>
 </template>
