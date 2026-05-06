@@ -1,5 +1,6 @@
 <script setup>
 const { customer, isLoggedIn } = useCustomer()
+const { lineCount } = useCart()
 </script>
 
 <template>
@@ -8,6 +9,10 @@ const { customer, isLoggedIn } = useCustomer()
         <nav>
             <NuxtLink to="/">Home</NuxtLink>
             <NuxtLink to="/products">Products</NuxtLink>
+            <NuxtLink to="/cart" class="cart-link">
+                Cart
+                <span v-if="lineCount > 0" class="cart-badge">{{ lineCount }}</span>
+            </NuxtLink>
             <template v-if="isLoggedIn">
                 <NuxtLink to="/account">Hi, {{ customer.firstName || 'there' }}</NuxtLink>
                 <a href="/api/auth/logout">Logout</a>
@@ -34,5 +39,23 @@ const { customer, isLoggedIn } = useCustomer()
 nav {
     display: flex;
     gap: 1rem;
+    align-items: center;
+}
+
+.cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.cart-badge {
+    background: #000;
+    color: #fff;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    min-width: 1.25rem;
+    text-align: center;
 }
 </style>

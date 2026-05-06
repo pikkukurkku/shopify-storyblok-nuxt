@@ -2,7 +2,7 @@
 const route = useRoute()
 const shopify = useShopify()
 const country = useShopifyCountry()
-const { buyNow } = useCart()
+const { buyNow, addItem } = useCart()
 
 const { data: product } = await useAsyncData(`product-${route.params.handle}`, async () => {
   const { data, errors } = await shopify.request(`#graphql
@@ -45,15 +45,30 @@ const { data: related } = await useAsyncData(
   )
 
 const variant = computed(() => product.value?.variants?.nodes?.[0])
+const quantity = ref(1)
 const isBuying = ref(false)
+const isAdding = ref(false)
+const justAdded = ref(false)
 
 async function onBuyNow() {
   if (!variant.value) return
   isBuying.value = true
   try {
-    await buyNow(variant.value.id)
+    await buyNow(variant.value.id, quantity.value)
   } finally {
     isBuying.value = false
+  }
+}
+
+async function onAddToCart() {
+  if (!variant.value) return
+  isAdding.value = true
+  try {
+    await addItem(variant.value.id, quantity.value)
+    justAdded.value = true
+    setTimeout(() => (justAdded.value = false), 1500)
+  } finally {
+    isAdding.value = false
   }
 }
 </script>
@@ -72,18 +87,45 @@ async function onBuyNow() {
         <p class="text-2xl">
           {{ formatMoney(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode) }}
         </p>
-        <button
-          type="button"
-          class="w-full rounded-full bg-black text-white py-3 font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          :disabled="!variant?.availableForSale || isBuying"
-          @click="onBuyNow"
-        >
-          {{ isBuying
-            ? 'Redirecting…'
-            : variant?.availableForSale
-              ? 'Buy now'
-              : 'Sold out' }}
-        </button>
+        <div v-if="variant?.availableForSale" class="flex items-center gap-3">
+          <span class="text-sm text-gray-700">Quantity</span>
+          <div class="inline-flex items-center border rounded-full overflow-hidden">
+            <button
+              type="button"
+              class="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
+              :disabled="quantity <= 1"
+              @click="quantity = Math.max(1, quantity - 1)"
+            >−</button>
+            <span class="px-4 min-w-8 text-center">{{ quantity }}</span>
+            <button
+              type="button"
+              class="px-3 py-1 hover:bg-gray-100"
+              @click="quantity = quantity + 1"
+            >+</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            class="rounded-full border border-black py-3 font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            :disabled="!variant?.availableForSale || isAdding"
+            @click="onAddToCart"
+          >
+            {{ isAdding ? 'Adding…' : justAdded ? 'Added ✓' : 'Add to cart' }}
+          </button>
+          <button
+            type="button"
+            class="rounded-full bg-black text-white py-3 font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            :disabled="!variant?.availableForSale || isBuying"
+            @click="onBuyNow"
+          >
+            {{ isBuying
+              ? 'Redirecting…'
+              : variant?.availableForSale
+                ? 'Buy now'
+                : 'Sold out' }}
+          </button>
+        </div>
         <div class="prose" v-html="product.descriptionHtml" />
       </div>
     </article>
