@@ -69,11 +69,11 @@ const formatDate = (iso) =>
                 :key="idx"
                 class="flex gap-3 py-2 items-center"
               >
-                <img
-                  v-if="item.image"
-                  :src="item.image.url"
-                  :alt="item.image.altText || item.title"
-                  class="w-12 h-12 object-cover rounded"
+                <ProductImage
+                  :image="item.image"
+                  :title="item.title"
+                  :icon-size="20"
+                  class="w-12 h-12 rounded"
                 />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm font-medium truncate">{{ item.title }}</p>

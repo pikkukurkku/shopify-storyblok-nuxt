@@ -29,11 +29,10 @@ const { data: product } = await useAsyncData(`teaser-${props.handle}`, async () 
     :to="`/products/${product.handle}`"
     class="group block rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-md transition"
   >
-    <img
-      v-if="product.featuredImage"
-      :src="product.featuredImage.url"
-      :alt="product.featuredImage.altText || product.title"
-      class="w-full aspect-square object-cover group-hover:scale-105 transition"
+    <ProductImage
+      :image="product.featuredImage"
+      :title="product.title"
+      class="w-full aspect-square group-hover:scale-105 transition"
     />
     <div class="p-4 space-y-1">
       <h3 class="font-medium">{{ product.title }}</h3>

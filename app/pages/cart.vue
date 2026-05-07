@@ -21,11 +21,11 @@ const { cart, isLoading, updateLine, removeLine, goToCheckout } = useCart()
           class="flex gap-4 py-4 items-center"
         >
           <NuxtLink :to="`/products/${line.merchandise.product.handle}`" class="shrink-0">
-            <img
-              v-if="line.merchandise.image"
-              :src="line.merchandise.image.url"
-              :alt="line.merchandise.image.altText || line.merchandise.product.title"
-              class="w-20 h-20 object-cover rounded-lg"
+            <ProductImage
+              :image="line.merchandise.image"
+              :title="line.merchandise.product.title"
+              :icon-size="32"
+              class="w-20 h-20 rounded-lg"
             />
           </NuxtLink>
           <div class="flex-1 min-w-0">

@@ -1,21 +1,13 @@
-interface CustomerResponse {
-  data?: {
-    customer: {
-      id: string
-      firstName: string | null
-      lastName: string | null
-      emailAddress: { emailAddress: string } | null
-    } | null
-  }
-  errors?: unknown[]
+interface CustomerData {
+  customer: {
+    id: string
+    firstName: string | null
+    lastName: string | null
+    emailAddress: { emailAddress: string } | null
+  } | null
 }
 
 export default defineEventHandler(async (event) => {
-  const accessToken = getCookie(event, 'shopify_customer_access_token')
-  if (!accessToken) return null
-
-  const { apiUrl } = getCustomerAccountConfig()
-
   const query = `#graphql
     query Customer {
       customer {
@@ -27,18 +19,7 @@ export default defineEventHandler(async (event) => {
     }
   `
 
-  try {
-    const response = await $fetch<CustomerResponse>(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: accessToken,
-      },
-      body: { query },
-    })
-    if (response.errors || !response.data?.customer) return null
-    return response.data.customer
-  } catch {
-    return null
-  }
+  const response = await customerGraphQL<CustomerData>(event, query)
+  if (!response || response.errors || !response.data?.customer) return null
+  return response.data.customer
 })

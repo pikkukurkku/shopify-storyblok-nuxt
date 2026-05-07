@@ -37,11 +37,10 @@ const { data: products } = await useAsyncData("products", async () => {
         :to="`/products/${p.handle}`"
         class="group block hover:opacity-80 transition"
       >
-        <img
-          v-if="p.featuredImage"
-          :src="p.featuredImage.url"
-          :alt="p.featuredImage.altText || p.title"
-          class="aspect-square w-full object-cover"
+        <ProductImage
+          :image="p.featuredImage"
+          :title="p.title"
+          class="aspect-square w-full"
         />
         <h3 class="mt-3 font-medium">{{ p.title }}</h3>
         <p class="mt-1 text-gray-600">

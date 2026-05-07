@@ -44,6 +44,17 @@ const { data: related } = await useAsyncData(
     }                                                                                                                                                                                                                                                                                    
   )
 
+let template
+try {
+  const { story } = await useAsyncStoryblok('templates/product', {
+    api: { version: 'draft' },
+    bridge: {},
+  })
+  template = story
+} catch {
+  template = ref(null)
+}
+
 const variant = computed(() => product.value?.variants?.nodes?.[0])
 const quantity = ref(1)
 const isBuying = ref(false)
@@ -75,12 +86,20 @@ async function onAddToCart() {
 
 <template>
   <main class="max-w-6xl mx-auto px-4 py-12">
+    <section v-if="template?.content.aboveBuyBox?.length" class="bg-red-300 text-center rounded-xl py-8 mb-18 space-y-8">
+    <StoryblokComponent
+      v-for="blok in template.content.aboveBuyBox"
+      :key="blok._uid"
+      :blok="blok"
+    />
+  </section>
+
     <article v-if="product" class="grid gap-10 md:grid-cols-2">
-      <img
-        v-if="product.featuredImage"
-        :src="product.featuredImage.url"
-        :alt="product.featuredImage.altText || product.title"
-        class="w-full aspect-square object-cover rounded-2xl"
+      <ProductImage
+        :image="product.featuredImage"
+        :title="product.title"
+        :icon-size="80"
+        class="w-full aspect-square rounded-2xl"
       />
       <div class="space-y-6">
         <h1 class="text-4xl font-bold">{{ product.title }}</h1>
@@ -129,6 +148,13 @@ async function onAddToCart() {
         <div class="prose" v-html="product.descriptionHtml" />
       </div>
     </article>
+          <section v-if="template?.content.belowBuyBox?.length" class="bg-blue-300 text-center rounded-xl py-8 my-18 space-y-8">
+    <StoryblokComponent
+      v-for="blok in template.content.belowBuyBox"
+      :key="blok._uid"
+      :blok="blok"
+    />
+  </section>
       <section v-if="related?.length" class="mt-16">                                                                                                                                                                                                                                         
     <h2 class="text-2xl font-bold mb-6">You might also like(fetched from Shopify and uses Shopify logic)</h2>                                                                                                                                                                                                                         
     <div class="grid gap-6 md:grid-cols-3">

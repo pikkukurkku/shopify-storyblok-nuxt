@@ -1,10 +1,10 @@
 export default defineEventHandler(async (event) => {
   const { clientId, authUrl } = getCustomerAccountConfig()
 
-  const verifier = generateRandomString(64)
+  const verifier = generateRandomString()
   const challenge = generateCodeChallenge(verifier)
-  const state = generateRandomString(32)
-  const nonce = generateRandomString(32)
+  const state = generateRandomString()
+  const nonce = generateRandomString()
 
   const shortLived = { ...AUTH_COOKIE_OPTIONS, maxAge: 60 * 10 }
   setCookie(event, 'shopify_pkce_verifier', verifier, shortLived)
