@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   modules: ["@storyblok/nuxt", "@nuxt/image"],
   storyblok: {
     accessToken: process.env.STORYBLOK_TOKEN,
+    apiOptions: { region: 'eu' },
   },
   image: {
     provider: "storyblok",
