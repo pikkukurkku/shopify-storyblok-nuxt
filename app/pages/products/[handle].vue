@@ -3,6 +3,7 @@ const route = useRoute()
 const shopify = useShopify()
 const country = useShopifyCountry()
 const { buyNow, addItem } = useCart()
+const version = useStoryblokVersion()
 
 const { data: product } = await useAsyncData(`product-${route.params.handle}`, async () => {
   const { data, errors } = await shopify.request(`#graphql
@@ -47,7 +48,7 @@ const { data: related } = await useAsyncData(
 let template
 try {
   const { story } = await useAsyncStoryblok('templates/product', {
-    api: { version: 'draft' },
+    api: { version },
     bridge: {},
   })
   template = story
@@ -124,26 +125,8 @@ async function onAddToCart() {
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button
-            type="button"
-            class="rounded-full border border-black py-3 font-medium hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            :disabled="!variant?.availableForSale || isAdding"
-            @click="onAddToCart"
-          >
-            {{ isAdding ? 'Adding…' : justAdded ? 'Added ✓' : 'Add to cart' }}
-          </button>
-          <button
-            type="button"
-            class="rounded-full bg-black text-white py-3 font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            :disabled="!variant?.availableForSale || isBuying"
-            @click="onBuyNow"
-          >
-            {{ isBuying
-              ? 'Redirecting…'
-              : variant?.availableForSale
-                ? 'Buy now'
-                : 'Sold out' }}
-          </button>
+          
+          
         </div>
         <div class="prose" v-html="product.descriptionHtml" />
       </div>

@@ -1,9 +1,10 @@
 <script setup>
 const route = useRoute()
 const slug = (route.params.slug || []).join('/') || 'home'
+const version = useStoryblokVersion()
 
 const { story } = await useAsyncStoryblok(slug, {
-  api: { version: 'draft' },
+  api: { version },
 })
 
 if (!story.value) {
